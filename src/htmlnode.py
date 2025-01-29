@@ -30,8 +30,10 @@ class LeafNode(HTMLNode):
     def to_html(self):
         if self.value == None:
             raise ValueError
-        if self.tag == None:
+        elif self.tag == None:
             return self.value
+        elif self.tag == "img":
+            return f"<{self.tag}{self.props_to_html()}>"
         else:
             return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
         
@@ -50,5 +52,23 @@ class ParentNode(HTMLNode):
                 a += child.to_html()
             return f"<{self.tag}{self.props_to_html()}>{a}</{self.tag}>"
             
+#text_node = TextNode("something", TextType.TEXT)
+#print(vars(text_node))
+
 def text_node_to_html_node(text_node):
-    if text_node.text_type 
+    if text_node.text_type == TextType.TEXT:
+        return LeafNode(None, text_node.text)
+    if text_node.text_type == TextType.BOLD:
+        return LeafNode("b", text_node.text)
+    if text_node.text_type == TextType.ITALIC:
+        return LeafNode("i", text_node.text)
+    if text_node.text_type == TextType.CODE:
+        return LeafNode("code", text_node.text)
+    if text_node.text_type == TextType.LINK:
+        props = {"href": text_node.url}
+        return LeafNode("a", text_node.text, props)
+    if text_node.text_type == TextType.IMAGE:
+        props = {"src": text_node.url, "alt": "image"}
+        return LeafNode("img", "", props)
+    else:
+        raise ValueError("cannot create html node.  improper text type.")

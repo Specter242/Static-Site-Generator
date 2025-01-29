@@ -1,6 +1,7 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import HTMLNode, LeafNode, ParentNode, text_node_to_html_node
+from textnode import TextType, TextNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -71,7 +72,36 @@ class TestHTMLNode(unittest.TestCase):
         for _ in range(10):
             node = ParentNode("div", [node])
         self.assertTrue("Deep text")
-
+    def test_text_node_to_html_node1(self):
+        # Test basic text node
+        text_node = TextNode("Hello, world!", TextType.TEXT)
+        html_node = text_node_to_html_node(text_node)
+        self.assertEqual(html_node.to_html(), "Hello, world!")
+    def test_text_node_to_html_node2(self):
+        # Test bold text node
+        text_node = TextNode("Bold text", TextType.BOLD)
+        html_node = text_node_to_html_node(text_node)
+        self.assertEqual(html_node.to_html(), "<b>Bold text</b>")
+    def test_text_node_to_html_node3(self):
+        text_node = TextNode("Italic text", TextType.ITALIC)
+        html_node = text_node_to_html_node(text_node)
+        self.assertEqual(html_node.to_html(), "<i>Italic text</i>")
+    def test_text_node_to_html_node4(self):
+        text_node = TextNode("Code", TextType.CODE)
+        html_node = text_node_to_html_node(text_node)
+        self.assertEqual(html_node.to_html(), "<code>Code</code>")
+    def test_text_node_to_html_node5(self):
+        text_node = TextNode("link", TextType.LINK, "url")
+        html_node = text_node_to_html_node(text_node)
+        self.assertEqual(html_node.to_html(), '<a href="url">link</a>')
+    def test_text_node_to_html_node6(self):
+        text_node = TextNode("", TextType.IMAGE, "url")
+        html_node = text_node_to_html_node(text_node)
+        self.assertEqual(html_node.to_html(), '<img src="url" alt="image">')
+    def test_text_node_to_html_node_invalid(self):
+        text_node = TextNode("text", None)  # None is not a valid TextType
+        with self.assertRaises(ValueError):
+            text_node_to_html_node(text_node)
 
 if __name__ == "__main__":
     unittest.main()
