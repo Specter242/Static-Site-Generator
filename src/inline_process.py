@@ -72,18 +72,14 @@ def split_nodes_link(old_nodes):
             new_nodes.append(node)
             continue
         
-        links = extract_markdown_links(node.text)
-        if len(links) == 0:
-            new_nodes.append(node)
-            continue
-        
-        parts = re.split(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", node.text)
-        for i, part in enumerate(parts):
-            if i % 4 == 0:
+        parts = re.split(r"(\[.*?\]\(.*?\))", node.text)
+        for part in parts:
+            if re.match(r"\[.*?\]\(.*?\)", part):
+                match = re.match(r"\[(.*?)\]\((.*?)\)", part)
+                if match:
+                    text, url = match.groups()
+                    new_nodes.append(TextNode(text, TextType.LINK, url))
+            else:
                 new_nodes.append(TextNode(part, TextType.TEXT))
-            elif i % 4 == 1:
-                new_nodes.append(TextNode("", TextType.LINK, links[i // 4][1]))
-            elif i % 4 == 2:
-                new_nodes[-1].text = part  # Update the text of the last added link node
-
+    
     return new_nodes
