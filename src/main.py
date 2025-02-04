@@ -15,7 +15,7 @@ def main():
     print(f"Content directory: {content}")
     print(f"Destination directory: {destination}")
     copyall(source, destination)
-    generate_page(os.path.join(content, "index.md"), os.path.join(parent_dir, "template.html"), os.path.join(destination, "index.html"))
+    generate_pages_recursive(content, os.path.join(parent_dir, "template.html"), destination)
 
 def copyall(source, destination):
     if not os.path.exists(source):
@@ -57,5 +57,17 @@ def generate_page(from_path, template_path, dest_path):
     final_html = template.replace("{{ Title }}", html_title).replace("{{ Content }}", html)
     with open(dest_path, "w") as output_file:
         output_file.write(final_html)
+
+def generate_pages_recursive(content_dir, template_path, dest_dir):
+    for item in os.listdir(content_dir):
+        source_path = os.path.join(content_dir, item)
+        if os.path.isdir(source_path):
+            dest_path = os.path.join(dest_dir, item)
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            generate_pages_recursive(source_path, template_path, dest_path)
+        elif item.endswith(".md"):
+            dest_path = os.path.join(dest_dir, item[:-3] + ".html")
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            generate_page(source_path, template_path, dest_path)
 
 main()
